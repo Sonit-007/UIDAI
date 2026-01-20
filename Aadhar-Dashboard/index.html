@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aadhaar Enrolment & Update Analysis - Interactive Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .stats-bar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #FFD700;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .nav-tabs {
+            background: white;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            overflow-x: auto;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 20px;
+            background: white;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #555;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .tab-button:hover {
+            background: #f8f9fa;
+            color: #667eea;
+        }
+        
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: #f8f9fa;
+        }
+        
+        .content-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 0.5s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .viz-container {
+            width: 100%;
+            min-height: 600px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .viz-container iframe {
+            width: 100%;
+            height: 800px;
+            border: none;
+        }
+        
+        .tab-description {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .tab-description h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .tab-description p {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .key-insights {
+            background: #FFF9E6;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border-left: 4px solid #F39C12;
+        }
+        
+        .key-insights h3 {
+            color: #F39C12;
+            margin-bottom: 15px;
+        }
+        
+        .key-insights ul {
+            margin-left: 20px;
+        }
+        
+        .key-insights li {
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 60px;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            margin: 20px 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .stats-bar {
+                gap: 20px;
+            }
+            
+            .stat-number {
+                font-size: 1.5em;
+            }
+            
+            .tab-button {
+                padding: 15px 10px;
+                font-size: 0.9em;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🇮🇳 Aadhaar Enrolment & Update Analysis</h1>
+        <p>Interactive Dashboard - Comprehensive Analysis of 4.9M Records</p>
+        
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number">4.9M</div>
+                <div class="stat-label">Total Records</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">49</div>
+                <div class="stat-label">States Analyzed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">20.9x</div>
+                <div class="stat-label">Update Rate</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">$6.6M</div>
+                <div class="stat-label">Potential Savings</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <button class="tab-button active" onclick="showTab(0)">📈 Temporal Trends</button>
+        <button class="tab-button" onclick="showTab(1)">🗺️ Geographic Analysis</button>
+        <button class="tab-button" onclick="showTab(2)">👥 Age Distribution</button>
+        <button class="tab-button" onclick="showTab(3)">📊 Monthly Comparison</button>
+        <button class="tab-button" onclick="showTab(4)">🎯 3D Performance</button>
+        <button class="tab-button" onclick="showTab(5)">📋 Executive Dashboard</button>
+    </div>
+    
+    <!-- Content Container -->
+    <div class="content-container">
+        
+        <!-- Tab 1: Temporal Trends -->
+        <div class="tab-content active" id="tab-0">
+            <div class="tab-description">
+                <h2>📈 Temporal Trends Analysis</h2>
+                <p>Explore how enrolments and updates have evolved over time. This visualization reveals seasonal patterns, growth trends, and the extraordinary engagement levels in the Aadhaar system.</p>
+            </div>
+            
+            <div class="viz-container">
+                <iframe src="1_temporal_trends.html" title="Temporal Trends"></iframe>
+            </div>
+            
+            <div class="key-insights">
+                <h3>💡 Key Insights</h3>
+                <ul>
+                    <li><strong>Biometric updates exceed enrolments by 20.9x</strong> - Indicating exceptional user engagement</li>
+                    <li><strong>Demographic updates are 9.0x higher</strong> than initial enrolments</li>
+                    <li><strong>Daily average:</strong> 7,667 enrolments, 160,269 biometric updates</li>
+                    <li>Clear temporal patterns suggest policy-driven and campaign-based activities</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Tab 2: Geographic Comparison -->
+        <div class="tab-content" id="tab-1">
+            <div class="tab-description">
+                <h2>🗺️ Geographic Distribution</h2>
+                <p>State-wise analysis revealing significant regional disparities. Top 5 states account for 54.3% of all enrolments, while bottom 10 states struggle with coverage.</p>
+            </div>
+            
+            <div class="viz-container">
+                <iframe src="2_geographic_comparison.html" title="Geographic Comparison"></iframe>
+            </div>
+            
+            <div class="key-insights">
+                <h3>💡 Key Insights</h3>
+                <ul>
+                    <li><strong>Uttar Pradesh leads</strong> with 21.1% of total enrolments (554,062)</li>
+                    <li><strong>Top 5 states = 54.3%</strong> of all enrolments - severe concentration</li>
+                    <li><strong>10 underserved states</strong> with fewer than 30 enrolments each</li>
+                    <li><strong>Data quality issues:</strong> "West Bengal" has 6+ spelling variations</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Tab 3: Age Distribution -->
+        <div class="tab-content" id="tab-2">
+            <div class="tab-description">
+                <h2>👥 Age Group Analysis</h2>
+                <p>Demographic breakdown showing strong focus on early-life registration. Children aged 0-5 represent 57.4% of enrolments and this proportion is statistically increasing.</p>
+            </div>
+            
+            <div class="viz-container">
+                <iframe src="3_age_distribution.html" title="Age Distribution"></iframe>
+            </div>
+            
+            <div class="key-insights">
+                <h3>💡 Key Insights</h3>
+                <ul>
+                    <li><strong>57.4% are children (0-5 years)</strong> - Strong early-life focus</li>
+                    <li><strong>Child proportion INCREASING</strong> over time (p = 0.0012, statistically significant)</li>
+                    <li><strong>Only 6.9% adults (18+)</strong> - Warrants investigation</li>
+                    <li>Youth (5-17) proportion declining, suggesting saturation in that segment</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Tab 4: Monthly Comparison -->
+        <div class="tab-content" id="tab-3">
+            <div class="tab-description">
+                <h2>📊 Multi-Modal Comparison</h2>
+                <p>Monthly trends comparing enrolments, demographic updates, and biometric updates. Reveals the scale disparity and different usage patterns across modalities.</p>
+            </div>
+            
+            <div class="viz-container">
+                <iframe src="4_monthly_trends.html" title="Monthly Trends"></iframe>
+            </div>
+            
+            <div class="key-insights">
+                <h3>💡 Key Insights</h3>
+                <ul>
+                    <li><strong>Biometric updates dominate</strong> - 2.3x higher than demographic updates</li>
+                    <li><strong>January spike</strong> suggests campaign-driven activity or data artifacts</li>
+                    <li><strong>69.1% of states prefer biometric</strong> updates over demographic</li>
+                    <li>Update patterns suggest mandatory refresh policies for children</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Tab 5: 3D Performance -->
+        <div class="tab-content" id="tab-4">
+            <div class="tab-description">
+                <h2>🎯 3D State Performance Analysis</h2>
+                <p>Multi-dimensional visualization showing states plotted across three key metrics: total enrolments, update rate, and child proportion. Reveals complex clustering patterns.</p>
+            </div>
+            
+            <div class="viz-container">
+                <iframe src="viz_5_3d_scatter_performance.html" title="3D Performance"></iframe>
+            </div>
+            
+            <div class="key-insights">
+                <h3>💡 Key Insights</h3>
+                <ul>
+                    <li><strong>4 distinct state clusters</strong> identified based on performance</li>
+                    <li><strong>High enrolment ≠ high update rate</strong> - No direct correlation</li>
+                    <li>States with higher child proportions show different update patterns</li>
+                    <li>Geographic spread (bubble size) varies significantly by state tier</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Tab 6: Executive Dashboard -->
+        <div class="tab-content" id="tab-5">
+            <div class="tab-description">
+                <h2>📋 Executive Dashboard</h2>
+                <p>Comprehensive overview combining all key metrics. Designed for decision-makers to quickly grasp system performance and identify priority areas.</p>
+            </div>
+            
+            <div class="viz-container">
+                <iframe src="viz_6_comprehensive_dashboard.html" title="Executive Dashboard"></iframe>
+            </div>
+            
+            <div class="key-insights">
+                <h3>💡 Strategic Recommendations</h3>
+                <ul>
+                    <li><strong>P0 Priority:</strong> Fix data quality issues ($300K investment, 283% ROI)</li>
+                    <li><strong>P1 Priority:</strong> Target 10 underserved states with mobile camps</li>
+                    <li><strong>P1 Priority:</strong> Optimize update process (30% efficiency gain potential)</li>
+                    <li><strong>Total Impact:</strong> $6.6M annual savings with $2.2M investment</li>
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <h2>📄 Complete Analysis Report</h2>
+        <p>Download the comprehensive PDF report with detailed methodology, code, and recommendations</p>
+        
+        <a href="#" class="download-btn">📥 Download Full Report (PDF)</a>
+        <a href="INTERACTIVE_state_calculator.html" class="download-btn" target="_self">🧮 Interactive Calculator</a>
+        
+        <p style="margin-top: 30px; opacity: 0.7;">
+            Analysis conducted on 4,938,837 records | 49 States | 939 Districts<br>
+            Created with Python, Plotly, and advanced statistical methods
+        </p>
+    </div>
+    
+    <script>
+        function showTab(index) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-button');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById('tab-' + index).classList.add('active');
+            buttons[index].classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

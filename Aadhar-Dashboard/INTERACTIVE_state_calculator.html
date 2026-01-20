@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aadhaar State Performance Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .input-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .input-section h2 {
+            color: #2C3E50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .results-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #b8c6db;
+        }
+        
+        .results-section h2 {
+            color: #2C3E50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .metric-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2C3E50;
+        }
+        
+        .metric-value.good {
+            color: #27AE60;
+        }
+        
+        .metric-value.warning {
+            color: #F39C12;
+        }
+        
+        .metric-value.danger {
+            color: #E74C3C;
+        }
+        
+        .performance-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+        
+        .badge-high {
+            background: #27AE60;
+            color: white;
+        }
+        
+        .badge-medium {
+            background: #F39C12;
+            color: white;
+        }
+        
+        .badge-low {
+            background: #E74C3C;
+            color: white;
+        }
+        
+        .recommendations {
+            background: #FFF9E6;
+            border-left: 4px solid #F39C12;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        
+        .recommendations h3 {
+            color: #F39C12;
+            margin-bottom: 10px;
+        }
+        
+        .recommendations ul {
+            margin-left: 20px;
+        }
+        
+        .recommendations li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .chart-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Aadhaar State Performance Calculator</h1>
+            <p>Interactive tool to analyze state-level performance metrics and generate recommendations</p>
+        </div>
+        
+        <div class="content">
+            <div class="calculator-grid">
+                <div class="input-section">
+                    <h2>📊 Input Parameters</h2>
+                    
+                    <div class="form-group">
+                        <label for="state-select">Select State:</label>
+                        <select id="state-select">
+                            <option value="">-- Choose a State --</option>
+                            <option value="uttar_pradesh">Uttar Pradesh</option>
+                            <option value="bihar">Bihar</option>
+                            <option value="madhya_pradesh">Madhya Pradesh</option>
+                            <option value="maharashtra">Maharashtra</option>
+                            <option value="west_bengal">West Bengal</option>
+                            <option value="rajasthan">Rajasthan</option>
+                            <option value="karnataka">Karnataka</option>
+                            <option value="gujarat">Gujarat</option>
+                            <option value="andhra_pradesh">Andhra Pradesh</option>
+                            <option value="tamil_nadu">Tamil Nadu</option>
+                            <option value="custom">Custom State</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="enrolments">Total Enrolments:</label>
+                        <input type="number" id="enrolments" placeholder="Enter number of enrolments" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="demo-updates">Demographic Updates:</label>
+                        <input type="number" id="demo-updates" placeholder="Enter demographic updates" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio-updates">Biometric Updates:</label>
+                        <input type="number" id="bio-updates" placeholder="Enter biometric updates" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="districts">Number of Districts:</label>
+                        <input type="number" id="districts" placeholder="Enter number of districts" min="1">
+                    </div>
+                    
+                    <button class="calculate-btn" onclick="calculate()">Calculate Performance 🚀</button>
+                </div>
+                
+                <div class="results-section">
+                    <h2>📈 Performance Metrics</h2>
+                    
+                    <div id="results">
+                        <div style="text-align: center; padding: 60px 20px; color: #999;">
+                            <div style="font-size: 4em; margin-bottom: 20px;">📊</div>
+                            <p>Enter parameters and click "Calculate Performance" to see results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="recommendations-container"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Sample data for quick population
+        const stateData = {
+            uttar_pradesh: { enrol: 554062, demo: 5100000, bio: 11200000, districts: 75 },
+            bihar: { enrol: 299950, demo: 2700000, bio: 6100000, districts: 38 },
+            madhya_pradesh: { enrol: 232136, demo: 2100000, bio: 4500000, districts: 52 },
+            maharashtra: { enrol: 171931, demo: 1600000, bio: 3400000, districts: 36 },
+            west_bengal: { enrol: 164555, demo: 1500000, bio: 3200000, districts: 23 },
+            rajasthan: { enrol: 154860, demo: 1400000, bio: 3000000, districts: 33 },
+            karnataka: { enrol: 96225, demo: 880000, bio: 1900000, districts: 31 },
+            gujarat: { enrol: 166816, demo: 1500000, bio: 3300000, districts: 33 },
+            andhra_pradesh: { enrol: 85000, demo: 770000, bio: 1650000, districts: 13 },
+            tamil_nadu: { enrol: 90000, demo: 820000, bio: 1750000, districts: 38 }
+        };
+        
+        document.getElementById('state-select').addEventListener('change', function() {
+            const state = this.value;
+            if (state && state !== 'custom' && stateData[state]) {
+                document.getElementById('enrolments').value = stateData[state].enrol;
+                document.getElementById('demo-updates').value = stateData[state].demo;
+                document.getElementById('bio-updates').value = stateData[state].bio;
+                document.getElementById('districts').value = stateData[state].districts;
+            } else if (state === 'custom') {
+                document.getElementById('enrolments').value = '';
+                document.getElementById('demo-updates').value = '';
+                document.getElementById('bio-updates').value = '';
+                document.getElementById('districts').value = '';
+            }
+        });
+        
+        function calculate() {
+            const enrolments = parseFloat(document.getElementById('enrolments').value) || 0;
+            const demoUpdates = parseFloat(document.getElementById('demo-updates').value) || 0;
+            const bioUpdates = parseFloat(document.getElementById('bio-updates').value) || 0;
+            const districts = parseFloat(document.getElementById('districts').value) || 1;
+            
+            if (enrolments === 0) {
+                alert('Please enter the number of enrolments');
+                return;
+            }
+            
+            // Calculate metrics
+            const demoRate = (demoUpdates / enrolments).toFixed(2);
+            const bioRate = (bioUpdates / enrolments).toFixed(2);
+            const totalUpdateRate = (parseFloat(demoRate) + parseFloat(bioRate)).toFixed(2);
+            const enrolPerDistrict = (enrolments / districts).toFixed(0);
+            
+            // Determine performance tier
+            let tier, tierClass, tierLabel;
+            if (enrolments > 200000) {
+                tier = 'Very High';
+                tierClass = 'badge-high';
+                tierLabel = 'Tier 1';
+            } else if (enrolments > 50000) {
+                tier = 'High';
+                tierClass = 'badge-high';
+                tierLabel = 'Tier 2';
+            } else if (enrolments > 1000) {
+                tier = 'Medium';
+                tierClass = 'badge-medium';
+                tierLabel = 'Tier 3';
+            } else {
+                tier = 'Low';
+                tierClass = 'badge-low';
+                tierLabel = 'Tier 4';
+            }
+            
+            // Determine update rate quality
+            let updateClass, updateAssessment;
+            if (totalUpdateRate > 25) {
+                updateClass = 'good';
+                updateAssessment = 'Excellent engagement';
+            } else if (totalUpdateRate > 15) {
+                updateClass = 'good';
+                updateAssessment = 'Good engagement';
+            } else if (totalUpdateRate > 5) {
+                updateClass = 'warning';
+                updateAssessment = 'Moderate engagement';
+            } else {
+                updateClass = 'danger';
+                updateAssessment = 'Low engagement';
+            }
+            
+            // Generate results HTML
+            const resultsHTML = `
+                <div class="metric-card">
+                    <div class="metric-label">Performance Tier</div>
+                    <div class="metric-value">${tier}</div>
+                    <span class="performance-badge ${tierClass}">${tierLabel}</span>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Total Update Rate</div>
+                    <div class="metric-value ${updateClass}">${totalUpdateRate}×</div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">${updateAssessment}</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Demographic Update Rate</div>
+                    <div class="metric-value">${demoRate}×</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Biometric Update Rate</div>
+                    <div class="metric-value">${bioRate}×</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Enrolments per District</div>
+                    <div class="metric-value">${enrolPerDistrict.toLocaleString()}</div>
+                </div>
+            `;
+            
+            document.getElementById('results').innerHTML = resultsHTML;
+            
+            // Generate recommendations
+            generateRecommendations(tier, totalUpdateRate, enrolPerDistrict, demoRate, bioRate);
+        }
+        
+        function generateRecommendations(tier, updateRate, enrolPerDistrict, demoRate, bioRate) {
+            let recommendations = [];
+            
+            // Tier-based recommendations
+            if (tier === 'Low' || tier === 'Medium') {
+                recommendations.push('🎯 <strong>Priority:</strong> Increase outreach and enrollment campaigns');
+                recommendations.push('📱 Consider mobile enrollment units for better coverage');
+            }
+            
+            if (tier === 'Very High') {
+                recommendations.push('✅ <strong>Excellent performance!</strong> Focus on maintaining quality');
+            }
+            
+            // Update rate recommendations
+            if (updateRate < 10) {
+                recommendations.push('⚠️ Low update engagement - implement awareness campaigns');
+                recommendations.push('📧 Send proactive reminders to users for updates');
+            } else if (updateRate > 30) {
+                recommendations.push('🔄 Very high update rate - investigate if updates are necessary');
+                recommendations.push('💡 Consider process optimization to reduce redundant updates');
+            }
+            
+            // Biometric vs Demographic balance
+            const updateRatio = bioRate / (demoRate + 0.01);
+            if (updateRatio > 2) {
+                recommendations.push('🔬 Biometric updates significantly higher - check quality of initial capture');
+            } else if (updateRatio < 0.5) {
+                recommendations.push('📝 Demographic updates higher - may indicate frequent address changes');
+            }
+            
+            // District coverage
+            if (enrolPerDistrict < 500) {
+                recommendations.push('📍 Low district-level coverage - focus on geographic expansion');
+            } else if (enrolPerDistrict > 50000) {
+                recommendations.push('🏛️ High concentration - ensure adequate service center capacity');
+            }
+            
+            const recoHTML = `
+                <div class="recommendations">
+                    <h3>💡 Recommendations</h3>
+                    <ul>
+                        ${recommendations.map(r => `<li>${r}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('recommendations-container').innerHTML = recoHTML;
+        }
+    </script>
+</body>
+</html>
