@@ -274,7 +274,7 @@
         
        
         <!-- Tab 1: Geographic Comparison -->
-        <div class="tab-content" id="tab-1">
+        <div class="tab-content active" id="tab-1">
             <div class="tab-description">
                 <h2>🗺️ Geographic Distribution</h2>
                 <p>State-wise analysis revealing significant regional disparities. Top 5 states account for 54.3% of all enrolments, while bottom 10 states struggle with coverage.</p>
@@ -389,7 +389,7 @@
             
             // Show selected tab
             document.getElementById('tab-' + index).classList.add('active');
-            buttons[index].classList.add('active');
+            buttons[index - 1].classList.add('active');
             
             // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
